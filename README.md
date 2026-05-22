@@ -123,3 +123,29 @@ Basically the game is:
 5. Repeat with harder levels
 
 It's actually a pretty solid little platformer! Pretty cool that you can make a full 3D game with just HTML, CSS, and JavaScript.
+
+## Recent Updates
+
+### Sound Effects
+The game now has audio feedback for everything you do:
+- **Jump sound** - Plays a beep when you jump
+- **Fail sound** - Plays a buzzer when you fall
+- **Win sound** - Plays a victory fanfare when you beat a level
+All sounds are generated using the Web Audio API, so no audio files needed!
+
+### High Score Tracking
+Your best times are now saved! The game tracks your fastest completion time for each level and stores it in your browser. When you beat a level, it shows you:
+- Your current time
+- "NEW RECORD!" if you beat your previous best
+- Your previous best time if you didn't beat it
+
+Scores are saved between sessions, so come back and try to beat your own records.
+
+### 6 Levels Now
+The game now has 6 levels instead of 4:
+1. **First Steps** - Tutorial level with simple platforms
+2. **Gaps** - Jump across big gaps
+3. **Moving Platforms** - Deal with platforms that slide back and forth
+4. **Chaos** - Combine everything with multiple moving platforms
+5. **Speed Runner** - Fast-paced level with scattered smaller platforms
+6. **The Gauntlet** - The ultimate challenge with 4 tricky moving platforms
