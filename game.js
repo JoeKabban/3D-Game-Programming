@@ -33,6 +33,71 @@ var canvas = document.getElementById('renderCanvas');
 var engine = null;
 
 
+// ── Sound Effects (Web Audio API) ──────────────────────────────
+var audioContext = null;
+
+function initAudio() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  }
+}
+
+function playSound(frequency, duration, type) {
+  if (!audioContext) initAudio();
+  var osc = audioContext.createOscillator();
+  var gain = audioContext.createGain();
+  osc.connect(gain);
+  gain.connect(audioContext.destination);
+  osc.frequency.value = frequency;
+  osc.type = type || 'sine';
+  gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+  osc.start(audioContext.currentTime);
+  osc.stop(audioContext.currentTime + duration);
+}
+
+function soundJump() {
+  playSound(400, 0.1, 'square');
+  playSound(600, 0.08, 'sine');
+}
+
+function soundLand() {
+  playSound(200, 0.15, 'sine');
+}
+
+function soundWin() {
+  playSound(523, 0.1, 'sine');
+  setTimeout(function() { playSound(659, 0.1, 'sine'); }, 100);
+  setTimeout(function() { playSound(783, 0.2, 'sine'); }, 200);
+}
+
+function soundFail() {
+  playSound(150, 0.3, 'square');
+}
+
+
+// ── High Score System ──────────────────────────────────────────
+function getHighScore(levelIndex) {
+  var scores = JSON.parse(localStorage.getItem('marbleChaosScores') || '{}');
+  return scores[levelIndex] || null;
+}
+
+function setHighScore(levelIndex, time) {
+  var scores = JSON.parse(localStorage.getItem('marbleChaosScores') || '{}');
+  var current = scores[levelIndex];
+  if (!current || time < current) {
+    scores[levelIndex] = time;
+    localStorage.setItem('marbleChaosScores', JSON.stringify(scores));
+    return true; // new record
+  }
+  return false;
+}
+
+function clearAllScores() {
+  localStorage.removeItem('marbleChaosScores');
+}
+
+
 // ── Level definitions ─────────────────────────────────────────
 // platforms: [x, y, z, width, depth]
 // moving:    [x, y, z, width, depth, axis, range, speed]
@@ -94,6 +159,48 @@ var LEVELS = [
       [ 0, 0,  2, 2, 2, 'z', 3, 1.5],
       [ 4, 0,  4, 2, 2, 'x', 3, 2.0],
       [ 2, 0,  6, 2, 2, 'z', 2, 1.6]
+    ]
+  },
+  {
+    name: "Speed Runner",
+    start: { x: 0, y: 1.5, z: -12 },
+    goal:  { x: 0, y: 1.5, z:  12 },
+    platforms: [
+      [0, 0, -12, 3, 3],
+      [2, 0, -8, 2, 2],
+      [-2, 0, -5, 2, 2],
+      [3, 0, -1, 2, 2],
+      [-3, 0,  3, 2, 2],
+      [2, 0,  7, 2, 2],
+      [0, 0, 12, 3, 3]
+    ],
+    moving: [
+      [-2, 0, -10, 2, 2, 'x', 4, 2.0],
+      [0, 0, 0, 2, 2, 'z', 5, 1.8],
+      [3, 0, 5, 2, 2, 'x', 3, 1.9]
+    ]
+  },
+  {
+    name: "The Gauntlet",
+    start: { x: -10, y: 1.5, z: -10 },
+    goal:  { x: 10, y: 1.5, z:  10 },
+    platforms: [
+      [-10, 0, -10, 3, 3],
+      [-6, 0, -8, 2, 2],
+      [-2, 0, -6, 2, 2],
+      [2, 0, -4, 2, 2],
+      [-4, 0, -2, 2, 2],
+      [0, 0,  1, 2, 2],
+      [4, 0,  3, 2, 2],
+      [-2, 0,  6, 2, 2],
+      [3, 0,  8, 2, 2],
+      [10, 0, 10, 3, 3]
+    ],
+    moving: [
+      [-8, 0, -4, 2, 2, 'x', 5, 1.5],
+      [-1, 0,  0, 2, 2, 'z', 4, 1.7],
+      [1, 0,   5, 2, 2, 'x', 4, 1.6],
+      [6, 0,   6, 2, 2, 'z', 3, 1.8]
     ]
   }
 ];
@@ -376,6 +483,7 @@ function buildScene() {
         marble.physicsImpostor.setLinearVelocity(
           new BABYLON.Vector3(v.x, JUMP_IMPULSE, v.z)
         );
+        soundJump();
         jumpCooldown = 0.25;
         onGround = false;
       }
@@ -419,6 +527,7 @@ function buildScene() {
 function onFell() {
   if (!timerRunning) return;
   timerRunning = false;
+  soundFail();
   livesCount--;
   updateLivesUI();
 
@@ -452,8 +561,17 @@ function onWin() {
   won = true;
   timerRunning = false;
   clearInterval(timerInterval);
+  soundWin();
 
+  var isNewRecord = setHighScore(currentLevel, timerVal);
+  var highScore = getHighScore(currentLevel);
+  
   document.getElementById('win-time').textContent = timerVal.toFixed(1) + 's';
+  if (isNewRecord) {
+    document.getElementById('win-time').textContent += ' 🏆 NEW RECORD!';
+  } else if (highScore) {
+    document.getElementById('win-time').textContent += ' (Best: ' + highScore.toFixed(1) + 's)';
+  }
   document.getElementById('win-overlay').classList.add('show');
 
   var winBtn = document.getElementById('win-btn');
