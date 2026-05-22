@@ -1,0 +1,275 @@
+/* ── Reset ───────────────────────────────────────────────────── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ── Page ────────────────────────────────────────────────────── */
+body {
+  background: #010108;
+  overflow: hidden;
+  font-family: 'Courier New', monospace;
+}
+
+/* ── 3D Canvas ───────────────────────────────────────────────── */
+#renderCanvas {
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  touch-action: none;
+}
+
+/* ── UI overlay wrapper ──────────────────────────────────────── */
+#ui {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* clicks pass through to canvas by default */
+}
+
+/* ── HUD (top bar) ───────────────────────────────────────────── */
+#hud {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.hud-item {
+  color: #fff;
+  text-align: center;
+}
+
+.hud-label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+}
+
+.hud-value {
+  font-size: 22px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(100, 200, 255, 0.8);
+}
+
+#level-badge {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 6px 20px;
+}
+
+/* ── Keyboard controls hint (bottom) ────────────────────────── */
+#controls-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.key {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 11px;
+  padding: 4px 10px;
+  letter-spacing: 1px;
+}
+
+.key-sep {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 12px;
+}
+
+/* ── Start / Game Over overlay ───────────────────────────────── */
+#overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.85);
+  pointer-events: all;
+  transition: opacity 0.4s;
+}
+
+#overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#overlay-box {
+  text-align: center;
+  color: #fff;
+  max-width: 400px;
+  padding: 0 20px;
+}
+
+#overlay-title {
+  font-size: 56px;
+  font-weight: 900;
+  letter-spacing: -2px;
+  line-height: 1;
+  background: linear-gradient(135deg, #fff 0%, #88ccff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 12px;
+}
+
+#overlay-sub {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 2px;
+  margin-bottom: 32px;
+  text-transform: uppercase;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.play-btn {
+  background: #fff;
+  color: #0a0a0f;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  padding: 14px 40px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: transform 0.1s;
+  pointer-events: all;
+}
+.play-btn:hover  { transform: scale(1.04); }
+.play-btn:active { transform: scale(0.97); }
+
+.gold-btn {
+  background: #ffe066;
+  color: #0a0a0f;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 3px;
+  padding: 14px 40px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: transform 0.1s;
+}
+.gold-btn:hover { transform: scale(1.04); }
+
+/* ── "You fell!" message ─────────────────────────────────────── */
+#fell-msg {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ff6666;
+  font-size: 18px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+#fell-msg.show { opacity: 1; }
+
+/* ── Win overlay ─────────────────────────────────────────────── */
+#win-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.82);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+#win-overlay.show { opacity: 1; pointer-events: all; }
+
+#win-box { text-align: center; color: #fff; }
+
+#win-title {
+  font-size: 64px;
+  font-weight: 900;
+  background: linear-gradient(135deg, #ffe066, #ff9933);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+
+#win-sub {
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 3px;
+  font-size: 12px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+#win-time {
+  font-size: 36px;
+  color: #fff;
+  margin-bottom: 28px;
+}
+
+/* ── Mobile jump button ──────────────────────────────────────── */
+#jump-label {
+  position: absolute;
+  bottom: 138px;
+  right: 52px;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+#jump-btn {
+  position: absolute;
+  bottom: 60px;
+  right: 40px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 28px;
+  cursor: pointer;
+  pointer-events: all;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#jump-btn:active { background: rgba(255, 255, 255, 0.28); transform: scale(0.92); }
+
+/* ── Debug error display ─────────────────────────────────────── */
+#err {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: #f66;
+  font-size: 12px;
+  max-width: 80vw;
+  pointer-events: none;
+}

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marble Chaos</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<canvas id="renderCanvas"></canvas>
+
+<div id="ui">
+
+  <!-- HUD (timer, level, lives) -->
+  <div id="hud">
+    <div class="hud-item">
+      <div class="hud-label">Time</div>
+      <div class="hud-value" id="timer">0.0</div>
+    </div>
+    <div class="hud-item" id="level-badge">
+      <div class="hud-label">Level</div>
+      <div class="hud-value" id="level-num">1</div>
+    </div>
+    <div class="hud-item">
+      <div class="hud-label">Lives</div>
+      <div class="hud-value" id="lives-ui">❤️❤️❤️</div>
+    </div>
+  </div>
+
+  <!-- Keyboard controls hint -->
+  <div id="controls-hint">
+    <span class="key">W A S D</span>
+    <span class="key-sep">or</span>
+    <span class="key">↑ ← ↓ →</span>
+    <span class="key-sep">·</span>
+    <span class="key">Space — jump</span>
+    <span class="key-sep">·</span>
+    <span class="key">R — restart</span>
+  </div>
+
+  <!-- "You fell!" message -->
+  <div id="fell-msg">You fell!</div>
+
+  <!-- Start / Game Over screen -->
+  <div id="overlay">
+    <div id="overlay-box">
+      <div id="overlay-title">MARBLE<br>CHAOS</div>
+      <div id="overlay-sub">Roll to the glowing goal</div>
+      <button class="play-btn" id="overlay-btn">Play</button>
+    </div>
+  </div>
+
+  <!-- Level win screen -->
+  <div id="win-overlay">
+    <div id="win-box">
+      <div id="win-title">YOU WIN!</div>
+      <div id="win-sub">Level completed in</div>
+      <div id="win-time">—</div>
+      <button class="gold-btn" id="win-btn">Next level ›</button>
+    </div>
+  </div>
+
+  <!-- Mobile jump button -->
+  <div id="jump-label">Jump</div>
+  <button id="jump-btn">↑</button>
+
+  <!-- Error display (debug) -->
+  <div id="err"></div>
+
+</div>
+
+<!-- Physics engine (must load before Babylon) -->
+<script src="https://unpkg.com/cannon@0.6.2/build/cannon.min.js"></script>
+<!-- Babylon.js 3D engine -->
+<script src="https://unpkg.com/babylonjs@6.48.1/babylon.js"></script>
+<!-- Our game code -->
+<script src="game.js"></script>
+
+</body>
+</html>
